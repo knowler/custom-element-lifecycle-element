@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-ca">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Custom Element Lifecycle Element Demonstration</title>
+		<script type="module">
+			import { CustomElementLifecycleElement } from "./custom-element-lifecycle-element.js";
+			import { DisableFormsElement, MoveBetweenFormsElement, MoveItElement, SetupFormsElement } from "./demo-elements.js";
+
+			MoveBetweenFormsElement.define();
+			DisableFormsElement.define();
+			MoveItElement.define();
+			SetupFormsElement.define();
+
+			CustomElementLifecycleElement.define();
+
+			await CustomElementLifecycleElement.defined;
+
+			console.log("Programmatically creating an element:");
+
+			const lifecycleElement = document.createElement(CustomElementLifecycleElement.tagName);
+			const span = document.createElement("span");
+			span.textContent = "(with slotted content)";
+			lifecycleElement.appendChild(span);
+			lifecycleElement.setAttribute("with-an-attribute", "hi");
+
+			// Trying to demostrate that `slotchange` can fire before the element is connected
+			queueMicrotask(() => document.querySelector("section:first-of-type").appendChild(lifecycleElement));
+		</script>
+		<style>
+			:root {
+				color-scheme: dark light;
+				font-family: system-ui;
+				line-height: 1.5;
+			}
+
+			form {
+				border: 2px dashed CanvasText;
+				padding: 1rem;
+			}
+
+			form + form {
+				margin-block-start: 1rem;
+			}
+
+			custom-element-lifecycle[form="first"] ~ #first,
+			custom-element-lifecycle[form="second"] ~ #second {
+				border-color: DeepPink;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Custom Element Lifecycle Element Demonstration</h1>
+		<p>This <code>&lt;custom-element-lifecycle&gt;</code> element is purely to demonstrate when different points in a custom element’s lifecycle occur. Open the console and watch the log.</p>
+		<section>
+			<p>
+				<remove-it></remove-it>
+				<put-it-back></put-it-back>
+				<move-it></move-it>
+			</p>
+			<custom-element-lifecycle with-an-attribute="hello"><span>(with slotted content)</span></custom-element-lifecycle>
+		</section>
+
+		<section>
+			<h2>Form Associated Element</h2>
+			<setup-forms>
+				<template>
+					<div>
+						<move-between-forms></move-between-forms>
+						<disable-forms></disable-forms>
+					</div>
+					<custom-element-lifecycle form="first"></custom-element-lifecycle>
+					<small>Taking advantage of the <code>form</code> attribute to make my life easier.</small>
+					<form id="first">
+						<button type="reset">Reset</button>
+					</form>
+					<form id="second">
+						<button type="reset">Reset</button>
+					</form>
+				</template>
+			</setup-forms>
+		</section>
+	</body>
+</html>
